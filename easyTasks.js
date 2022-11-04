@@ -4,7 +4,11 @@ const USER_DATABASE_ID = PropertiesService.getScriptProperties().getProperty('US
 const PUSH_URL = 'https://api.line.me/v2/bot/message/push';
 const REPLY_URL = 'https://api.line.me/v2/bot/message/reply';
 const EMPTY_TASK = 'タスクはありません。';
-const TEXT_TABLE = 'table';
+const TEXT_USERTABLE = 'table';
+const TEXT_MESSAGE_EVENT = 'message';
+const TEXT_UNSEND_EVENT = 'unsend';
+const TEXT_FOLLOW_EVENT = 'follow';
+const TEXT_UNFOLLOW_EVENT = 'unfollow';
 const TEXT_TEXT = 'text';
 const TEXT_IMAGE = 'image';
 const TEXT_VIDEO = 'video';
@@ -27,11 +31,11 @@ function doPost(e) {
   const events = JSON.parse(e.postData.contents).events;
   events.forEach(
     function(event){
-      if(event.type === 'message'){
+      if(event.type === TEXT_MESSAGE_EVENT){
         message(event);
-      } else if(event.type === 'follow'){
+      } else if(event.type === TEXT_FOLLOW_EVENT){
         follow(event);
-      } else if(event.type === 'unfollow'){
+      } else if(event.type === TEXT_UNFOLLOW_EVENT){
         unfollow(event);
       }
     }
@@ -135,7 +139,7 @@ function follow(event){
   const unixTimestamp = event.timestamp;
   const source = event.source;
   const userId = source.userId;
-  const userDatabaseSheet = SpreadsheetApp.openById(USER_DATABASE_ID).getSheetByName(TEXT_TABLE);
+  const userDatabaseSheet = SpreadsheetApp.openById(USER_DATABASE_ID).getSheetByName(TEXT_USERTABLE);
   obtainSheet(userDatabaseSheet);
   sendReplyMessage(replyToken, TEXT_EXPLANATION);
   userDatabase.insertUser(userId, unixTimestamp);
@@ -148,7 +152,7 @@ function follow(event){
 function unfollow(event){
   const source = event.source;
   const userId = source.userId;
-  const userDatabaseSheet = SpreadsheetApp.openById(USER_DATABASE_ID).getSheetByName(TEXT_TABLE);
+  const userDatabaseSheet = SpreadsheetApp.openById(USER_DATABASE_ID).getSheetByName(TEXT_USERTABLE);
   const taskDatabaseSheet = SpreadsheetApp.openById(TASK_DATABASE_ID).getSheetByName(userId);
   obtainSheet(userDatabaseSheet);
   obtainSheet(taskDatabaseSheet);
